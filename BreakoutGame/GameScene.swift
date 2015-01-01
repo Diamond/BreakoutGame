@@ -8,38 +8,35 @@
 
 import SpriteKit
 
+let BallCategoryName = "ball"
+let PaddleCategoryName = "paddle"
+let BlockCategoryName = "block"
+let BlockNodeCategoryName = "blockNode"
+
 class GameScene: SKScene {
+    var isFingerOnPaddle = false
+    
     override func didMoveToView(view: SKView) {
-        /* Setup your scene here */
-        let myLabel = SKLabelNode(fontNamed:"Chalkduster")
-        myLabel.text = "Hello, World!";
-        myLabel.fontSize = 65;
-        myLabel.position = CGPoint(x:CGRectGetMidX(self.frame), y:CGRectGetMidY(self.frame));
+        super.didMoveToView(view)
         
-        self.addChild(myLabel)
+        let borderBody = SKPhysicsBody(edgeLoopFromRect: self.frame)
+        borderBody.friction = 0
+        self.physicsBody = borderBody
+        
+        physicsWorld.gravity = CGVectorMake(0, 0)
+        let ball = childNodeWithName(BallCategoryName) as SKSpriteNode
+        ball.physicsBody!.applyImpulse(CGVectorMake(10, -10))
     }
     
     override func touchesBegan(touches: NSSet, withEvent event: UIEvent) {
-        /* Called when a touch begins */
+        var touch = touches.anyObject() as UITouch!
+        var touchLocation = touch.locationInNode(self)
         
-        for touch: AnyObject in touches {
-            let location = touch.locationInNode(self)
-            
-            let sprite = SKSpriteNode(imageNamed:"Spaceship")
-            
-            sprite.xScale = 0.5
-            sprite.yScale = 0.5
-            sprite.position = location
-            
-            let action = SKAction.rotateByAngle(CGFloat(M_PI), duration:1)
-            
-            sprite.runAction(SKAction.repeatActionForever(action))
-            
-            self.addChild(sprite)
+        if let body = physicsWorld.bodyAtPoint(touchLocation) {
+            if body.node!.name == PaddleCategoryName {
+                println("Began touch on paddle")
+                isFingerOnPaddle = true
+            }
         }
-    }
-   
-    override func update(currentTime: CFTimeInterval) {
-        /* Called before each frame is rendered */
     }
 }
